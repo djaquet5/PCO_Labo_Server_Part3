@@ -25,6 +25,7 @@ private:
 	public:
 		InvalidationTimer(ReaderWriterCache* cache): cache(cache) {}
 
+
 	protected:
 		void run() {
 			// TODO
@@ -39,6 +40,8 @@ private:
 
 public:
 	ReaderWriterCache(int invalidationDelaySec, int staleDelaySec);
+
+    ~ReaderWriterCache();
 
 	Option<Response> tryGetCachedResponse(Request& request);
 	void putResponse(Response& response);

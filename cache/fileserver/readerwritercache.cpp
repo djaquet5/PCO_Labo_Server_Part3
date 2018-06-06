@@ -1,5 +1,7 @@
 #include "readerwritercache.h"
 #include "option.h"
+#include "request.h"
+#include "response.h"
 #include <QDateTime>
 #include <QList>
 #include <QDebug>
@@ -11,6 +13,8 @@ ReaderWriterCache::ReaderWriterCache(int invalidationDelaySec, int staleDelaySec
 
 ReaderWriterCache::~ReaderWriterCache()
 {
+
+}
 
 void ReaderWriterCache::putResponse(Response &response) {
 }

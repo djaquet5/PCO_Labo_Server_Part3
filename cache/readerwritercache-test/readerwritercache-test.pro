@@ -29,6 +29,9 @@ SOURCES += \
 HEADERS += \
     ../fileserver/readerwritercache.h \
     ../fileserver/readerwriterlock.h \
+    ../fileserver/request.h \
+    ../fileserver/response.h \
+    ../fileserver/option.h \
     tst_readerwriterchache.h
 
 INCLUDEPATH += \
