@@ -1,13 +1,16 @@
 #ifndef READERWRITERLOCK_H
 #define READERWRITERLOCK_H
 
+#include "hoaremonitor.h"
 
-class ReaderWriterLock
+class ReaderWriterLock : public HoareMonitor
 {
-
+private:
+    int nbReaders, nbWaitingReaders, nbWaitingWriters;
+    Condition condReader, condWriter;
+    bool writer;
 public:
     ReaderWriterLock();
-
     void lockReading();
     void lockWriting();
     void unlockReading();

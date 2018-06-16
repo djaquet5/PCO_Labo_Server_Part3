@@ -15,6 +15,7 @@ SOURCES += \
     responsedispatcherthread.cpp \
     readerwritercache.cpp \
     readerwriterlock.cpp \
+    hoaremonitor.cpp
 
 HEADERS += \
     fileserver.h \
@@ -30,6 +31,7 @@ HEADERS += \
     readerwritercache.h \
     readerwriterlock.h \
     option.h \
+    hoaremonitor.h
 
 EXAMPLE_FILES += fileclient.html
 
