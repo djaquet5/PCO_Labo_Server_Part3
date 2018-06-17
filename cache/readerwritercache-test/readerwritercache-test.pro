@@ -23,7 +23,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     ../fileserver/readerwritercache.cpp \
-    ../fileserver/readerwriterlock.cpp \
     tst_readerwriterchache.cpp \
     ../fileserver/hoaremonitor.cpp
 

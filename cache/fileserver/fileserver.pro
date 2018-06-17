@@ -14,7 +14,6 @@ SOURCES += \
     requesthandler.cpp \
     responsedispatcherthread.cpp \
     readerwritercache.cpp \
-    readerwriterlock.cpp \
     hoaremonitor.cpp
 
 HEADERS += \

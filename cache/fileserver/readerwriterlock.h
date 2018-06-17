@@ -7,7 +7,7 @@
 
  But         : Classe définissant un lecteur-rédacteur avec priorité au rédacteur
 
- Commentaires : Base donnée dans le labo
+ Commentaires : Priorité au rédacteurs
  -----------------------------------------------------------------------------
 */
 
@@ -23,11 +23,61 @@ private:
     Condition condReader, condWriter;
     bool isWriting;
 public:
-    ReaderWriterLock();
-    void lockReading();
-    void lockWriting();
-    void unlockReading();
-    void unlockWriting();
+    ReaderWriterLock() :
+        nbReaders(0), nbWaitingReaders(0), nbWaitingWriters(0), isWriting(false) {}
+
+    void lockReading() {
+        monitorIn();
+        if(isWriting || (nbWaitingWriters > 0)){
+            nbWaitingReaders++;
+            wait(condReader);
+        }else{
+            nbReaders++;
+        }
+        monitorOut();
+    }
+
+    void unlockReading() {
+        monitorIn();
+        nbReaders--;
+        if(nbReaders == 0 && nbWaitingWriters > 0){
+            isWriting = true;
+            nbWaitingWriters--;
+            signal(condWriter);
+        }
+        monitorOut();
+    }
+
+    void lockWriting() {
+        monitorIn();
+        if(isWriting) {
+            nbWaitingWriters++;
+            wait(condWriter);
+        }else{
+            isWriting = true;
+        }
+        monitorOut();
+    }
+
+    void unlockWriting() {
+        monitorIn();
+        isWriting = false;
+
+        if(nbWaitingReaders == 0 && nbWaitingWriters > 0){
+            isWriting = true;
+            nbWaitingWriters--;
+            signal(condWriter);
+
+        }else{
+            for(int i = 0; i < nbWaitingReaders; i++){
+                signal(condReader);
+            }
+            nbReaders = nbWaitingReaders;
+            nbWaitingReaders = 0;
+        }
+        monitorOut();
+    }
+
 };
 
 #endif // READERWRITERLOCK_H

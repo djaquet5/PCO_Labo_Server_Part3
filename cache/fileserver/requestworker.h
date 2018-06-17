@@ -45,10 +45,10 @@ protected:
         Response resp;
         Option<Response> cachedResponse = cache->tryGetCachedResponse(request);
         if (cachedResponse.hasValue()) {
-        resp = cachedResponse.value();
+            resp = cachedResponse.value();
         } else {
-        resp = RequestHandler(request, hasDebugLog).handle();
-        cache->putResponse(resp);
+            resp = RequestHandler(request, hasDebugLog).handle();
+            cache->putResponse(resp);
         }
         responses->put(resp);
     }

@@ -28,7 +28,7 @@ class ReaderWriterCache
 private:
     struct TimestampedResponse {
         Response response;
-        long timestamp_s; //renommage, car c'est en seconde
+        unsigned long long  timestamp_s; //renommage, car c'est en seconde
         TimestampedResponse(Response response, long timestamp_s) : response(response), timestamp_s(timestamp_s){
         }
     };
@@ -51,34 +51,26 @@ private:
         void run() {
 
             while(true){
-                std::cout << "cunni";
 
                 QHash<QString, TimestampedResponse>::iterator it;
                 QHash<QString, TimestampedResponse>::iterator begin  = cache->map.begin();
                 QHash<QString, TimestampedResponse>::iterator end = cache->map.end();
 
-                if(timer_s == ULLONG_MAX){
-                    //Si le erveur tourne depuis 593 milliard d'années, on remet tout à zéro
-                    for(it = begin; it != end; it++){
-                        it->timestamp_s = 0;
-                    }
-                    timer_s = 0;
-                }
+                //Si le serveur tourne depuis 593 milliard d'années, on remet tout à zéro
 
 
                 it = begin;
                 while(it != end){
-                    if((timer_s - it.value().timestamp_s) >= cache->staleDelaySec){
+                    if((timer_s - it.value().timestamp_s) >= (unsigned long long)cache->staleDelaySec){
                         it = cache->map.erase(it);
                     }else{
                         it++;
                     }
                 }
 
-                //Tout les invalidationDelaySec on vérifie le tout
+                //Tous les invalidationDelaySec on vérifie le tout
                 QThread::sleep(cache->invalidationDelaySec);
                 timer_s += cache->invalidationDelaySec;
-                // timer_s = timer_s < 0 ? ULLONG_MAX : timer_s;
 
                 if(isInterruptionRequested()){
                     break;
@@ -89,15 +81,54 @@ private:
 
     QHash<QString, TimestampedResponse> map;
     int invalidationDelaySec;
-    int staleDelaySec;
     InvalidationTimer* timer;
     ReaderWriterLock lock;
+    int staleDelaySec;
 
 public:
-    ReaderWriterCache(int invalidationDelaySec, int staleDelaySec);
-    ~ReaderWriterCache();
-    Option<Response> tryGetCachedResponse(Request& request);
-    void putResponse(Response& response);
+    ReaderWriterCache(int invalidationDelaySec, int staleDelaySec):
+        invalidationDelaySec(invalidationDelaySec), staleDelaySec(staleDelaySec)
+    {
+        timer = new InvalidationTimer(this);
+        timer->start();
+    }
+
+    ~ReaderWriterCache(){
+
+        timer->requestInterruption();
+        timer->wait();
+        delete timer;
+    }
+
+    void putResponse(Response &response) {
+        lock.lockWriting();
+
+        TimestampedResponse timRes(response, timer->getTimer());
+
+        //On ajoute la requête travaillée dans le cache
+        map.insert(response.getRequest().getFilePath(), timRes);
+
+        lock.unlockWriting();
+    }
+
+    Option<Response> tryGetCachedResponse(Request &request) {
+        lock.lockReading();
+
+        //On regarde dans le cache si la requête existe
+        const QHash<QString, TimestampedResponse>::iterator i = map.find(request.getFilePath());
+
+        Option<Response> response = Option<Response>::none();
+
+        //Si elle existe, on la récupère et on met à jour son timestamp
+        //Car s'il est lu, c'est qu'il peut "vivre" plus longtemps
+        if(i != map.end()){
+            response = Option<Response>::some(i->response);
+            i->timestamp_s = timer->getTimer();
+        }
+        lock.unlockReading();
+        return response;
+    }
+
 };
 
 #endif // READERWRITERCACHE_H
