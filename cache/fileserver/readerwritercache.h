@@ -7,21 +7,20 @@
 
  But         : Classe définissant un cache
 
- Commentaires : Base donnée dans le labo
+ Commentaires : Base donnée dans le labo, pour facilité la correction, tout est dans le .h
  -----------------------------------------------------------------------------
 */
 
 #ifndef READERWRITERCACHE_H
 #define READERWRITERCACHE_H
-#include <QHash>
 #include <QThread>
 #include <QMutex>
-#include <QTime>
-#include "option.h"
-#include "request.h"
-#include "response.h"
+#include <QHash>
+
 #include "readerwriterlock.h"
-#include <iostream>
+#include "response.h"
+#include "request.h"
+#include "option.h"
 
 class ReaderWriterCache
 {

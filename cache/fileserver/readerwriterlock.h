@@ -7,7 +7,7 @@
 
  But         : Classe définissant un lecteur-rédacteur avec priorité au rédacteur
 
- Commentaires : Priorité au rédacteurs
+ Commentaires : Priorité au rédacteurs, d'après un exercice fait en classe
  -----------------------------------------------------------------------------
 */
 

@@ -13,7 +13,6 @@ ReaderWriterCacheTest::ReaderWriterCacheTest()
 
 void ReaderWriterCacheTest::initTestCase()
 {
-    std::cout << "cunnistamp";
 }
 
 

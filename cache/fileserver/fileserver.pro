@@ -13,7 +13,6 @@ SOURCES += \
     filereader.cpp \
     requesthandler.cpp \
     responsedispatcherthread.cpp \
-    readerwritercache.cpp \
     hoaremonitor.cpp
 
 HEADERS += \
