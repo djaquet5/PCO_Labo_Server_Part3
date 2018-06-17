@@ -1,11 +1,23 @@
+/*
+ -----------------------------------------------------------------------------
+ Labo        : 8 - Server - étape 3
+ Fichier     : readerwriterlock.h
+ Auteur(s)   : David Jaquet et Vincent Guidoux
+ Date        : 16.06.2018
+
+ But         : Classe définissant un lecteur-rédacteur avec priorité au rédacteur
+
+ Commentaires : Base donnée dans le labo
+ -----------------------------------------------------------------------------
+*/
 #include "readerwriterlock.h"
 
 ReaderWriterLock::ReaderWriterLock() :
-    nbReaders(0), nbWaitingReaders(0), nbWaitingWriters(0), writer(false) {}
+    nbReaders(0), nbWaitingReaders(0), nbWaitingWriters(0), isWriting(false) {}
 
 void ReaderWriterLock::lockReading() {
     monitorIn();
-    if(writer || (nbWaitingWriters > 0)){
+    if(isWriting || (nbWaitingWriters > 0)){
         nbWaitingReaders++;
         wait(condReader);
     }else{
@@ -17,42 +29,41 @@ void ReaderWriterLock::lockReading() {
 void ReaderWriterLock::unlockReading() {
     monitorIn();
     nbReaders--;
-    if(nbReaders == 0){
-        if(nbWaitingWriters > 0){
-            writer = true;
-            nbWaitingWriters--;
-            signal(condWriter);
-        }
+    if(nbReaders == 0 && nbWaitingWriters > 0){
+        isWriting = true;
+        nbWaitingWriters--;
+        signal(condWriter);
+
     }
     monitorOut();
 }
 
 void ReaderWriterLock::lockWriting() {
     monitorIn();
-    if(writer) {
+    if(isWriting) {
         nbWaitingWriters++;
         wait(condWriter);
     }else{
-        writer = true;
+        isWriting = true;
     }
     monitorOut();
 }
 
 void ReaderWriterLock::unlockWriting() {
     monitorIn();
-    writer = false;
+    isWriting = false;
 
-    if(nbWaitingReaders > 0){
-        for(int i = 0; i < nbWaitingReaders; i++)
+    if(nbWaitingReaders == 0 && nbWaitingWriters > 0){
+        isWriting = true;
+        nbWaitingWriters--;
+        signal(condWriter);
+
+    }else{
+        for(int i = 0; i < nbWaitingReaders; i++){
             signal(condReader);
+        }
         nbReaders = nbWaitingReaders;
         nbWaitingReaders = 0;
-    }else{
-        if(nbWaitingWriters > 0){
-            writer = true;
-            nbWaitingWriters--;
-            signal(condWriter);
-        }
     }
     monitorOut();
 }

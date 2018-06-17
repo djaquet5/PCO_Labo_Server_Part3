@@ -37,8 +37,9 @@ public:
      */
     RequestDispatcherThread(AbstractBuffer<Request>* requests,
                             AbstractBuffer<Response>* responses,
+                            ReaderWriterCache* cache,
                             bool hasDebugLog) :
-        requests(requests),responses(responses), hasDebugLog(hasDebugLog) {
+        requests(requests),responses(responses), cache(cache), hasDebugLog(hasDebugLog) {
 
         if (hasDebugLog)
             qDebug() << "Created requests dispatcher thread";
@@ -63,6 +64,7 @@ protected:
 
             tmp =  new RequestWorker(requests->get(),
                                      responses,
+                                     cache,
                                      hasDebugLog);
             tmp->start();
         }
@@ -71,6 +73,7 @@ protected:
 private:
     AbstractBuffer<Request>* requests;
     AbstractBuffer<Response>* responses;
+    ReaderWriterCache* cache;
     RequestWorker* tmp;
     bool hasDebugLog;
 };

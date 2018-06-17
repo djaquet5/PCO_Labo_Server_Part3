@@ -67,10 +67,12 @@ FileServer::FileServer(quint16 port, bool debug, QObject *parent) :
     //Création des tampons de requêtes et de réponses
     requests = new Buffer<Request>(100000);
     responses = new Buffer<Response>(100000);
+    cache = new ReaderWriterCache(1,120);
 
     //Création et lancement du thread de dispatching des requêtes
     reqDispatcher = new RequestDispatcherThread(requests,
                                                 responses,
+                                                cache,
                                                 hasDebugLog);
     reqDispatcher->start();
 

@@ -56,6 +56,7 @@
 #include <QString>
 #include "requestdispatcherthread.h" // Ajouté par Vincent
 #include "responsedispatcherthread.h"
+#include "readerwritercache.h"
 #include "response.h"
 
 QT_FORWARD_DECLARE_CLASS(QWebSocketServer)
@@ -85,6 +86,7 @@ private:
     ResponseDispatcherThread* respDispatcher;
     AbstractBuffer<Request>* requests;
     AbstractBuffer<Response>* responses;
+    ReaderWriterCache* cache;
     bool hasDebugLog;
 };
 

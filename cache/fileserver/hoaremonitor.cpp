@@ -1,3 +1,15 @@
+/*
+ -----------------------------------------------------------------------------
+ Labo        : 8 - Server - étape 3
+ Fichier     : hoaremonitor.cpp
+ Auteur(s)   : David Jaquet et Vincent Guidoux
+ Date        : 16.06.2018
+
+ But         : Classe définissant un moniteur de Hoare
+
+ Commentaires : Prise du cours au slide 31 et 33 de moniteur
+ -----------------------------------------------------------------------------
+*/
 #include "hoaremonitor.h"
 
 HoareMonitor::Condition::Condition() : waitingSem(0), nbWaiting(0) {}

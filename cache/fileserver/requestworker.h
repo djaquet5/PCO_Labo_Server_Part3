@@ -11,6 +11,8 @@
 */
 #include "requesthandler.h"
 #include "response.h"
+#include "readerwritercache.h"
+#include "option.h"
 
 #ifndef REQUESTWORKER_H
 #define REQUESTWORKER_H
@@ -23,13 +25,15 @@ class RequestWorker : public QThread
 private:
     Request request;
     AbstractBuffer<Response>* responses;
+    ReaderWriterCache* cache;
     bool hasDebugLog;
 
 public:
     RequestWorker(Request request,
                   AbstractBuffer<Response>* responses,
+                  ReaderWriterCache* cache,
                   bool hasDebugLog):
-        request(request), responses(responses), hasDebugLog(hasDebugLog) {}
+        request(request), responses(responses), cache(cache), hasDebugLog(hasDebugLog) {}
 
 protected:
 
@@ -38,7 +42,15 @@ protected:
      *              réponses
      */
     void run (){
-        responses->put((new RequestHandler(request, hasDebugLog))->handle());
+        Response resp;
+        Option<Response> cachedResponse = cache->tryGetCachedResponse(request);
+        if (cachedResponse.hasValue()) {
+        resp = cachedResponse.value();
+        } else {
+        resp = RequestHandler(request, hasDebugLog).handle();
+        cache->putResponse(resp);
+        }
+        responses->put(resp);
     }
 
 };

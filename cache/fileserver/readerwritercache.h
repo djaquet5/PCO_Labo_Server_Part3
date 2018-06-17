@@ -1,3 +1,16 @@
+/*
+ -----------------------------------------------------------------------------
+ Labo        : 8 - Server - étape 3
+ Fichier     : readerwritercache.h
+ Auteur(s)   : David Jaquet et Vincent Guidoux
+ Date        : 16.06.2018
+
+ But         : Classe définissant un cache
+
+ Commentaires : Base donnée dans le labo
+ -----------------------------------------------------------------------------
+*/
+
 #ifndef READERWRITERCACHE_H
 #define READERWRITERCACHE_H
 #include <QHash>
@@ -10,7 +23,6 @@
 #include "readerwriterlock.h"
 #include <iostream>
 
-#define HOUR 3600
 class ReaderWriterCache
 {
 private:
@@ -38,29 +50,32 @@ private:
     protected:
         void run() {
 
-            while(1){
+            while(true){
                 std::cout << "cunni";
 
                 QHash<QString, TimestampedResponse>::iterator it;
-                /*
+                QHash<QString, TimestampedResponse>::iterator begin  = cache->map.begin();
+                QHash<QString, TimestampedResponse>::iterator end = cache->map.end();
+
                 if(timer_s == ULLONG_MAX){
                     //Si le erveur tourne depuis 593 milliard d'années, on remet tout à zéro
-                    for(it = cache->map.begin(); it != cache->map.end(); it++){
+                    for(it = begin; it != end; it++){
                         it->timestamp_s = 0;
                     }
                     timer_s = 0;
-                }*/
-                for(it = cache->map.begin(); it != cache->map.end(); ){
-                    struct TimestampedResponse value = it.value();
+                }
 
-                    if((timer_s - value.timestamp_s) >= cache->staleDelaySec){
+
+                it = begin;
+                while(it != end){
+                    if((timer_s - it.value().timestamp_s) >= cache->staleDelaySec){
                         it = cache->map.erase(it);
                     }else{
                         it++;
                     }
                 }
 
-                //Tout les invalidationDelaySec on vérifie
+                //Tout les invalidationDelaySec on vérifie le tout
                 QThread::sleep(cache->invalidationDelaySec);
                 timer_s += cache->invalidationDelaySec;
                 // timer_s = timer_s < 0 ? ULLONG_MAX : timer_s;
